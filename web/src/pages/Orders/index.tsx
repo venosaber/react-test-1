@@ -94,7 +94,7 @@ function Orders() {
     return (
         <>
             <h1>Order page</h1>
-            <Button variant="outlined" onClick={onAdd}>Add Product</Button>
+            <Button variant="outlined" onClick={onAdd}>Add Order</Button>
             <FTable tableName={'Products'} width={1000} headers={headers} rows={orders} onDelete={onDelete} />
             <OrderDialog title={"Add New Order"}
                            isOpen={isDialogOpen}
