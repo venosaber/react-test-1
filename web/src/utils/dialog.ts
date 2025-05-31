@@ -17,6 +17,7 @@ export interface ProductDialogProp extends BaseDialogProp {
 }
 
 export interface OrderDialogProp extends BaseDialogProp {
-    onSave: (order: Order) => void
+    onSave: (order: Order) => void,
+    productOptions: Product[]
 }
 

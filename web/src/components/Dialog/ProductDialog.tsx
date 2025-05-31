@@ -26,14 +26,14 @@ export default ({title, isOpen, onSave, onClose}: ProductDialogProp) => {
 
     const onChange = (event: any) => {
         const {name, value} = event.target;
-        setFormData(formData => ({...formData, [name]: value}));
+        setFormData((formData: ProductFormData) => ({...formData, [name]: value}));
         if(error) setError(null);
     }
 
     const handleSave = () => {
         setError(null);
         // form validation
-        const missingFields = requiredFields.filter(key => {
+        const missingFields: (keyof ProductFormData)[] = requiredFields.filter((key: keyof ProductFormData) => {
             const value = formData[key];
             return value === null || value === undefined || (value.trim() === '');
         })
@@ -58,7 +58,7 @@ export default ({title, isOpen, onSave, onClose}: ProductDialogProp) => {
 
         const finalProductData = {
             // use Date.now() for temporary
-            id: Date.now(),
+            id: String(Date.now()),
             name: formData.name.trim(),
             price: priceNum,
             remaining: remainingNum
@@ -100,9 +100,6 @@ export default ({title, isOpen, onSave, onClose}: ProductDialogProp) => {
                            helperText={!!error && requiredFields.includes('remaining')
                            && (formData.remaining === '' || isNaN(Number(formData.remaining)) || Number(formData.remaining) < 0) ? 'Must be a non-negative number' : ''}
                 />
-
-
-
 
                 {
                     error && (

@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "concurrently \"npm run dev\" \"json-server --watch db.json --port 3000\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -15,6 +16,7 @@
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "axios": "^1.9.0",
+    "concurrently": "^9.1.2",
     "json-server": "^1.0.0-beta.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

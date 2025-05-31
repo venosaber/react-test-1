@@ -4,14 +4,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import type {Header} from '../../utils'
 
 interface Props {
-    tableName: string;
     headers: Header[];
     rows: any[];
-    onDelete: (id: number) => void;
+    onDelete: (id: string) => void;
     width?: number;
 }
 
-function FTable({tableName, headers, rows, onDelete, width}: Props) {
+function FTable({headers, rows, onDelete, width}: Props) {
     const renderActionBtn = (headers: Header[], row: any) =>{
         const keys = headers.map(header => header.name);
         if(!keys.includes('action')) return;
@@ -23,7 +22,6 @@ function FTable({tableName, headers, rows, onDelete, width}: Props) {
     }
     return (
         <>
-            <h1>{tableName}</h1>
             <TableContainer component={Paper} sx={{width: width, margin: 'auto'}}>
                 <Table>
                     <TableHead>
@@ -42,10 +40,14 @@ function FTable({tableName, headers, rows, onDelete, width}: Props) {
                             rows.map((row)=> (
                                 <TableRow key={row.id}>
                                     {
-                                        Object.keys(row).map((rowKey: string) => (
-                                            <TableCell key={`${rowKey}-${row.id}`}>{row[rowKey]}</TableCell>
-                                        ))
+                                        headers.map((header: Header) => {
+                                            if(header.name === 'action') return;
+                                            return (
+                                                <TableCell key={`${header.name}-${row.id}`}>{row[header.name]}</TableCell>
+                                            )
+                                        })
                                     }
+
                                     {
                                         renderActionBtn(headers, row)
                                     }

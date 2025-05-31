@@ -4,15 +4,16 @@ export interface Header{
 }
 
 export interface Product{
-    id: number,
+    id: string,
     name: string,
     price: number,
     remaining: number,
 }
 
 export interface Order{
-    id: number,
-    productName: string,
+    id: string,
+    date: string,
+    product_id: string,
     quantity: number,
     amount: number,
 }

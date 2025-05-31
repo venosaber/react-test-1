@@ -1,30 +1,39 @@
-import {TextField, Stack, Typography} from "@mui/material";
-import type {OrderDialogProp} from "../../utils"
+import {TextField, Stack, Typography, Autocomplete} from "@mui/material";
+import type {OrderDialogProp, Product} from "../../utils"
 import {useState} from "react";
+import type {ChangeEvent} from "react";
 import {DialogContainer} from "../Dialog"
 
 interface OrderFormData{
     id?: string ;
-    productName: string;
-    quantity: string;
-    amount: string; // not number but string, to be more flexible
+    product_id: string;
+    quantity: string;       // not number but string, to be more flexible
+    amount: string;
+    date: string;
 }
 
 const defaultFormData: OrderFormData = {
     id: '',
-    productName: '',
+    product_id: '',
     quantity: '',
-    amount: ''
+    amount: '',
+    date: ''
 }
 
-const requiredFields: (keyof OrderFormData)[] = ['productName','quantity'];
+const requiredFields: (keyof OrderFormData)[] = ['product_id','quantity','date'];
 
-export default ({title, isOpen, onSave, onClose}: OrderDialogProp) => {
+export default ({title, isOpen, onSave, onClose, productOptions}: OrderDialogProp) => {
+    // hash table (product)
+    const productObj: {[id: string]: Product} = {};
+    productOptions.forEach((product: Product) => {
+        productObj[product.id] = product;
+    });
+
     const [formData, setFormData] = useState<OrderFormData>(defaultFormData);
 
     const [error, setError] = useState<string | null>(null);
 
-    const onChange = (event: any) => {
+    const onChange = (event: ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target;
         setFormData(formData => ({...formData, [name]: value}));
         if(error) setError(null);
@@ -33,7 +42,7 @@ export default ({title, isOpen, onSave, onClose}: OrderDialogProp) => {
     const handleSave = () => {
         setError(null);
         // form validation
-        const missingFields = requiredFields.filter(key => {
+        const missingFields: (keyof OrderFormData)[] = requiredFields.filter((key: keyof OrderFormData) => {
             const value = formData[key];
             return value === null || value === undefined || (value.trim() === '');
         })
@@ -42,9 +51,20 @@ export default ({title, isOpen, onSave, onClose}: OrderDialogProp) => {
             return;
         }
 
-        const quantityNum = Number(formData.quantity);
+        const quantityNum: number = Number(formData.quantity);
         if (isNaN(quantityNum) || quantityNum < 0){
             setError('Quantity must be a non-negative number!');
+            return;
+        }
+        const maxQuantity: number = productOptions.find((product: Product) => product.name === formData.product_id)?.remaining || 0;
+        if(quantityNum > maxQuantity){
+            setError(`Quantity must be less than or equal to ${maxQuantity}`);
+            return;
+        }
+
+        const selectedProductId = productOptions.find((product: Product) => product.name === formData.product_id)?.id;
+        if(!selectedProductId){
+            setError('Product is invalid!');
             return;
         }
 
@@ -52,14 +72,18 @@ export default ({title, isOpen, onSave, onClose}: OrderDialogProp) => {
 
         const finalOrderData = {
             // use Date.now() for temporary
-            id: Date.now(),
-            productName: formData.productName.trim(),
+            id: String(Date.now()),
+            product_id: selectedProductId,
             quantity: quantityNum,
-            amount: formData.amount,
+            amount: productObj[selectedProductId].price * quantityNum,
+            date: formData.date,
         }
 
         onSave(finalOrderData);
     }
+
+    // use this variable as a prop 'value' of Autocomplete
+    const selectedProductObject: Product|null = productOptions.find(option => option.name === formData.product_id) || null;
 
 
     return (
@@ -67,36 +91,34 @@ export default ({title, isOpen, onSave, onClose}: OrderDialogProp) => {
                          isOpen={isOpen} onClose={onClose}
                          onConfirm={handleSave}>
             <Stack component="form" sx={{ width: 450}} spacing={2} autoComplete="off">
-                <TextField name={'name'} fullWidth label="Name" variant="outlined"
-                           required={requiredFields.includes('name')}
-                           value={formData.name} onChange={onChange}
-                           error={!!error && requiredFields.includes('name') && !formData.name.trim()}
-                           helperText={!!error && requiredFields.includes('name') && !formData.name.trim() ? 'Name is required' : ''}
-                    // error is set => !!error would be true
+
+                <Autocomplete
+                    options={productOptions}
+                    getOptionLabel={(option: Product) => option.name} // just show the name, not the id of product
+                    value={selectedProductObject}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                    onChange={(_event, newValue: Product | null) => {
+                        setFormData(formData => ({...formData, product_id: newValue?.name ?? ''}));
+                        if(error) {
+                            setError(null);
+                        }}}
+                    // Render a TextField ínside
+                    renderInput={(params ) => (
+                        <TextField {...params}
+                                   fullWidth label="Product" variant="outlined"
+                                   required={requiredFields.includes('product_id')}
+                        />)} />
+
+                <TextField name={'quantity'} fullWidth label="Quantity" variant="outlined"
+                           required={requiredFields.includes('quantity')}
+                           value={formData.quantity} onChange={onChange}
+
                 />
 
-                <TextField name={'price'} fullWidth label="Price" variant="outlined"
-                           type={'number'}
-                           required={requiredFields.includes('price')}
-                           value={formData.price} onChange={onChange}
-                           error={!!error && requiredFields.includes('price')
-                               && (formData.price === '' || isNaN(Number(formData.price)) || Number(formData.price) < 0)}
-                           helperText={!!error && requiredFields.includes('price')
-                           && (formData.price === '' || isNaN(Number(formData.price)) || Number(formData.price) < 0) ? 'Must be a non-negative number' : ''}
+                <TextField name={'date'} fullWidth label="Date" variant="outlined"
+                           required={requiredFields.includes('date')}
+                           value={formData.date} onChange={onChange}
                 />
-
-                <TextField name={'remaining'} fullWidth label="Remaining" variant="outlined"
-                           type={'number'}
-                           required={requiredFields.includes('remaining')}
-                           value={formData.remaining} onChange={onChange}
-                           error={!!error && requiredFields.includes('remaining')
-                               && (formData.remaining === '' || isNaN(Number(formData.remaining)) || Number(formData.remaining) < 0)}
-                           helperText={!!error && requiredFields.includes('remaining')
-                           && (formData.remaining === '' || isNaN(Number(formData.remaining)) || Number(formData.remaining) < 0) ? 'Must be a non-negative number' : ''}
-                />
-
-
-
 
                 {
                     error && (
