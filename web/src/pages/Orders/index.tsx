@@ -67,6 +67,15 @@ function Orders() {
         }
     }
 
+    const putProductData = async (product: Product) => {
+        try{
+            const response = await api.put(`/products/${product.id}`, product);
+            return response.data;
+        }catch (e){
+            throw e;
+        }
+    }
+
     // on mounted
     useEffect(()=>{
         getData();
@@ -91,6 +100,11 @@ function Orders() {
 
         // Update to server
         try{
+            // update the remaining quantity (reduce)
+            const curProduct: Product = productOptions.find(p => p.id === productId)!;
+            curProduct.remaining -= order.quantity;
+            await putProductData(curProduct);
+            // add the order
             const addedOrder: Order = await postData({...order, id});
             console.log('Order added successfully: ', addedOrder);
         }catch (e){ // rollback
@@ -108,6 +122,11 @@ function Orders() {
 
         // Update to server
         try{
+            // update the remaining quantity (add back)
+            const curProduct: Product = productOptions.find(p => p.id === deletedOrder.product_id)!;
+            curProduct.remaining += deletedOrder.quantity;
+            await putProductData(curProduct);
+            // delete the order
             await deleteData(id);
             console.log('Order deleted successfully: ', deletedOrder);
         }catch (e){ // rollback

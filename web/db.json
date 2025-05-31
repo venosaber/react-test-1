@@ -11,6 +11,12 @@
       "name": "coca lon",
       "price": 8000,
       "remaining": 103
+    },
+    {
+      "id": "3",
+      "name": "Test product",
+      "price": 30000,
+      "remaining": 80
     }
   ],
   "orders": [
@@ -27,6 +33,13 @@
       "quantity": 1,
       "amount": 20000,
       "date": "2025-05-25"
+    },
+    {
+      "id": "3",
+      "product_id": "3",
+      "quantity": 20,
+      "amount": 600000,
+      "date": "today"
     }
   ]
 }

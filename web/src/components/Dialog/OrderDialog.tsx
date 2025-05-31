@@ -94,7 +94,7 @@ export default ({title, isOpen, onSave, onClose, productOptions}: OrderDialogPro
 
                 <Autocomplete
                     options={productOptions}
-                    getOptionLabel={(option: Product) => option.name} // just show the name, not the id of product
+                    getOptionLabel={(option: Product) => option.name} // only show the name, not the id of the product
                     value={selectedProductObject}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
                     onChange={(_event, newValue: Product | null) => {
