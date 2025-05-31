@@ -3,7 +3,7 @@ import type {Header, Product} from '../../utils'
 import {useState, useEffect, useMemo,type ChangeEvent} from 'react'
 import api from "../../plugins/api.ts"
 import {TextField, Button, Box} from '@mui/material';
-import {ProductDialog} from '../../components';
+import {ProductDialog, NavBar} from '../../components';
 
 const headers: Header[] = [
     {name: 'id', text: 'ID'},
@@ -100,7 +100,9 @@ function Products() {
 
     return (
         <>
-            <h1 style={{textAlign: 'center'}}>Product page</h1>
+            <NavBar />
+
+            <h1 style={{textAlign: 'center', marginTop: '80px'}}>Product page</h1>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 width: '1000px', margin: '20px auto'}}>
                 <TextField label="Search" variant="outlined"

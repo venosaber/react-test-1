@@ -3,7 +3,7 @@ import type {Header, Order, Product} from '../../utils'
 import {useState, useEffect, useMemo, type ChangeEvent} from 'react'
 import api from "../../plugins/api.ts"
 import {Box, Button, TextField} from '@mui/material';
-import {OrderDialog} from '../../components';
+import {OrderDialog, NavBar} from '../../components';
 
 const headers: Header[] = [
     {name: 'id', text: 'ID'},
@@ -147,7 +147,9 @@ function Orders() {
 
     return (
         <>
-            <h1 style={{textAlign: 'center'}}>Order page</h1>
+            <NavBar />
+
+            <h1 style={{textAlign: 'center', marginTop: '80px'}}>Order page</h1>
             <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 width: '1000px', margin: '20px auto'}}>
                 <TextField label="Search" variant="outlined"
