@@ -123,7 +123,9 @@ function Orders() {
         // Update to server
         try{
             // update the remaining quantity (add back)
-            const curProduct: Product = productOptions.find(p => p.id === deletedOrder.product_id)!;
+            const curProduct: Product = productOptions.find(p => p.name === deletedOrder.product_id)!;
+            console.log('curProduct: ', curProduct);
+            console.log('deletedOrder: ', deletedOrder);
             curProduct.remaining += deletedOrder.quantity;
             await putProductData(curProduct);
             // delete the order
@@ -132,7 +134,7 @@ function Orders() {
         }catch (e){ // rollback
             newOrders.splice(deleteIndex, 0, deletedOrder);
             setOrders(newOrders);
-            console.error('Error deleting product: ', e);
+            console.error('Error deleting order: ', e);
         }
     }
 
