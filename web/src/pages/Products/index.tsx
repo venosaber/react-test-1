@@ -1,8 +1,8 @@
 import {FTable} from '../../components'
 import type {Header, Product} from '../../utils'
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useMemo,type ChangeEvent} from 'react'
 import api from "../../plugins/api.ts"
-import {Button} from '@mui/material';
+import {TextField, Button, Box} from '@mui/material';
 import {ProductDialog} from '../../components';
 
 const headers: Header[] = [
@@ -18,6 +18,8 @@ function Products() {
 
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
+    const [searchStr, setSearchStr] = useState<string>('');     // filter products by name
+
     const getData = async () => {
         try{
             const productsData = await api.get('/products/');
@@ -26,6 +28,12 @@ function Products() {
             console.error(e);
         }
     }
+
+    const filteredProducts = useMemo(()=> {
+        return products.filter(product => {
+            return product.name.toLowerCase().includes(searchStr.toLowerCase());
+        })
+    },[searchStr, products])
 
     const postData = async (product: Product) => {
         try{
@@ -90,12 +98,22 @@ function Products() {
         }
     }
 
-
     return (
         <>
-            <h1>Product page</h1>
-            <Button variant="outlined" onClick={onAdd}>Add Product</Button>
-            <FTable width={1000} headers={headers} rows={products} onDelete={onDelete} />
+            <h1 style={{textAlign: 'center'}}>Product page</h1>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                width: '1000px', margin: '20px auto'}}>
+                <TextField label="Search" variant="outlined"
+                           value={searchStr}
+                           onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchStr(event.target.value)}
+                           sx={{width: 400, fontSize: '16px', flexGrow: 1, marginRight: '20px'}}
+                />
+                <Button variant="contained" color={'success'} onClick={onAdd} sx={{padding: '15px'}}>
+                    Add New
+                </Button>
+            </Box>
+
+            <FTable width={1000} headers={headers} rows={filteredProducts} onDelete={onDelete} />
             <ProductDialog title={"Add New Product"}
                            isOpen={isDialogOpen}
                            onSave={onSave} onClose={() => setIsDialogOpen(false)}

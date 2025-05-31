@@ -1,8 +1,8 @@
 import {FTable} from '../../components'
 import type {Header, Order, Product} from '../../utils'
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useMemo, type ChangeEvent} from 'react'
 import api from "../../plugins/api.ts"
-import {Button} from '@mui/material';
+import {Box, Button, TextField} from '@mui/material';
 import {OrderDialog} from '../../components';
 
 const headers: Header[] = [
@@ -19,6 +19,14 @@ function Orders() {
     const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
     const [productOptions, setProductOptions] = useState<Product[]>([]);
+
+    const [searchStr, setSearchStr] = useState<string>('');     // filter orders by product name
+
+    const filteredOrders = useMemo(()=> {
+        return orders.filter(order => {
+            return order.product_id.toLowerCase().includes(searchStr.toLowerCase());
+        })
+    },[searchStr, orders])
 
     const groupData = (products: Product[], orders: Order[]) => {
         // hash table (product)
@@ -124,8 +132,6 @@ function Orders() {
         try{
             // update the remaining quantity (add back)
             const curProduct: Product = productOptions.find(p => p.name === deletedOrder.product_id)!;
-            console.log('curProduct: ', curProduct);
-            console.log('deletedOrder: ', deletedOrder);
             curProduct.remaining += deletedOrder.quantity;
             await putProductData(curProduct);
             // delete the order
@@ -141,9 +147,20 @@ function Orders() {
 
     return (
         <>
-            <h1>Order page</h1>
-            <Button variant="outlined" onClick={onAdd}>Add Order</Button>
-            <FTable width={1000} headers={headers} rows={orders} onDelete={onDelete} />
+            <h1 style={{textAlign: 'center'}}>Order page</h1>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                width: '1000px', margin: '20px auto'}}>
+                <TextField label="Search" variant="outlined"
+                           value={searchStr}
+                           onChange={(event: ChangeEvent<HTMLInputElement>) => setSearchStr(event.target.value)}
+                           sx={{width: 400, fontSize: '16px', flexGrow: 1, marginRight: '20px'}}
+                />
+                <Button variant="contained" color={'success'} onClick={onAdd} sx={{padding: '15px'}}>
+                    Add New
+                </Button>
+            </Box>
+
+            <FTable width={1000} headers={headers} rows={filteredOrders} onDelete={onDelete} />
             <OrderDialog title={"Add New Order"}
                            isOpen={isDialogOpen}
                            onSave={onSave} onClose={() => setIsDialogOpen(false)}
