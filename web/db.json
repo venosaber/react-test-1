@@ -16,7 +16,7 @@
       "id": "3",
       "name": "Test product",
       "price": 30000,
-      "remaining": 90
+      "remaining": 80
     }
   ],
   "orders": [
@@ -35,11 +35,11 @@
       "date": "2025-05-25"
     },
     {
-      "id": "4",
+      "id": "5",
       "product_id": "3",
-      "quantity": 10,
-      "amount": 300000,
-      "date": "today"
+      "quantity": 20,
+      "amount": 600000,
+      "date": "2025-05-28"
     }
   ]
 }

@@ -4,6 +4,10 @@ import {useState} from "react";
 import type {ChangeEvent} from "react";
 import {DialogContainer} from "../Dialog"
 
+import {DesktopDatePicker, LocalizationProvider} from "@mui/x-date-pickers";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import type {PickerValue} from "@mui/x-date-pickers/internals";
+
 interface OrderFormData{
     id?: string ;
     product_id: string;
@@ -115,10 +119,14 @@ export default ({title, isOpen, onSave, onClose, productOptions}: OrderDialogPro
 
                 />
 
-                <TextField name={'date'} fullWidth label="Date" variant="outlined"
-                           required={requiredFields.includes('date')}
-                           value={formData.date} onChange={onChange}
-                />
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DesktopDatePicker
+                        sx={{width: '100%'}}
+                        // defaultValue={dayjs(new Date())}
+                        onChange={(value: PickerValue) => setFormData({...formData, date: value!.format('YYYY-MM-DD')})}
+
+                    />
+                </LocalizationProvider>
 
                 {
                     error && (
